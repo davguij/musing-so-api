@@ -1,0 +1,33 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_CONN_STRING")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  sub                String            @id
+  twitterUserId      String
+  twitterAccessToken String
+  twitterTokenSecret String
+  email              String?
+  isEmailVerified    Boolean?
+  isActive           Boolean           @default(false)
+  generatedTweets    GeneratedTweets[]
+}
+
+model GeneratedTweets {
+  id                       String   @id @default(cuid())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  text                     String
+  // TODO Rename "liked" to score and give a value of -1, 0, or 1?
+  liked                    Boolean  @default(false)
+  settingsTemperature      Float
+  settingsPresencePenalty  Float
+  settingsFrequencyPenalty Float
+  user                     User     @relation(fields: [userSub], references: [sub])
+  userSub                  String
+}
