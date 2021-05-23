@@ -8,7 +8,7 @@ export interface UsersPost extends RequestGenericInterface {
   };
 }
 
-export interface UsersPut extends RequestGenericInterface {
+export interface UsersPatch extends RequestGenericInterface {
   Body: {
     email: string;
   };

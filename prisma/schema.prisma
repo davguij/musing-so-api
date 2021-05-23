@@ -7,6 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model VerificationCode {
+  code      String   @id
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userSub], references: [sub])
+  userSub   String
+}
+
 model User {
   sub                String            @id
   twitterUserId      String
@@ -16,6 +23,7 @@ model User {
   isEmailVerified    Boolean?
   isActive           Boolean           @default(false)
   generatedTweets    GeneratedTweets[]
+  verificationCode   VerificationCode?
 }
 
 model GeneratedTweets {

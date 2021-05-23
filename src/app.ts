@@ -10,6 +10,7 @@ import fastifySensible from 'fastify-sensible';
 import { healthHandlers } from './health/handlers';
 import { usersHandlers } from './users/handlers';
 import { tweetsHandlers } from './tweets/handlers';
+import { verifyUsersHandlers } from './users/verify/handlers';
 // import { paymentRoutes } from './payments/routes';
 // import { PAYMENTS_CONFIG } from './payments/config';
 // import { paymentsNotificationsRoutes } from './payments/notifications/routes';
@@ -28,6 +29,7 @@ export function app() {
   // ROUTES start
   app.register(healthHandlers);
   app.register(usersHandlers);
+  app.register(verifyUsersHandlers);
   app.register(tweetsHandlers);
   // ROUTES end
   return app;
