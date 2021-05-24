@@ -406,10 +406,10 @@
   resolved "https://registry.yarnpkg.com/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz#9aa30c04db212a9a0649d6ae6fd50accc40748a1"
   integrity sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==
 
-"@useship/fastify-firebase-auth@^1.0.2":
-  version "1.0.2"
-  resolved "https://npm.pkg.github.com/download/@useship/fastify-firebase-auth/1.0.2/14a5e130039ab7d23e97e2b9fede607dc2631c53ed050ba7f51c9baff523b9dc#7b74bd645afb58ccce49ba693b785830f60fed10"
-  integrity sha512-qZJIOhe3dw7lLP3GIumJVsmobRFVK1dbxv8XSP8VBtxl8/8gd5pCnBO3eSqIFUpRChcryTbyEXasiIy5kKLI6w==
+"@useship/fastify-firebase-auth@^1.0.3":
+  version "1.0.3"
+  resolved "https://npm.pkg.github.com/download/@useship/fastify-firebase-auth/1.0.3/726adc410da48bfab0be375f190464344c6d8e875f3df27a8733e73be106b19a#3613643f0aca77098a1580906347a4e98f34a900"
+  integrity sha512-kg8risChS09xtoltAbr6w5Xf6EdOsV2fWf6OqAVzi+9pD7DcESi3y4oEOcMlOW80xvBNbdA8URK64kDAXYnv4g==
   dependencies:
     fastify-auth "^1.0.0"
     fastify-plugin "^3.0.0"

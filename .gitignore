@@ -75,3 +75,4 @@ typings/
 # FuseBox cache
 .fusebox/
 credentials/machine-d1643-firebase-adminsdk-9jpc7-5876bbb667.json
+credentials/firebase-admin-sdk-config.txt

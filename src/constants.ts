@@ -4,7 +4,9 @@ export const ROUTE_URLS = {
   tweets: '/tweets',
 } as const;
 
-export const CREDENTIALS = require('../credentials/machine-d1643-firebase-adminsdk-9jpc7-5876bbb667.json');
+export const CREDENTIALS = JSON.parse(
+  Buffer.from(process.env.FIREBASE_ADMIN_CONFIG_B64, 'base64').toString('ascii')
+);
 
 export const GPT3_SETTINGS = {
   temperature: 0.8,
