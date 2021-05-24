@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "^2.22.1",
-    "@types/node": "^15.0.3",
+    "@types/node": "^15.6.0",
     "@types/node-fetch": "^2.5.10",
     "@types/nodemailer": "^6.4.1",
     "@useship/fastify-firebase-auth": "^1.0.3",
