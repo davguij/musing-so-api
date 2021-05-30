@@ -22,10 +22,12 @@
   },
   "dependencies": {
     "@prisma/client": "^2.22.1",
+    "@types/bad-words": "^3.0.0",
     "@types/node": "^15.0.3",
     "@types/node-fetch": "^2.5.10",
     "@types/nodemailer": "^6.4.1",
     "@useship/fastify-firebase-auth": "^1.0.3",
+    "bad-words": "^3.0.4",
     "date-fns": "^2.21.3",
     "dotenv-safe": "^8.2.0",
     "emoji-regex": "^9.2.2",

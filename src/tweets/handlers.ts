@@ -1,12 +1,15 @@
 import { FastifyInstance } from 'fastify';
 import Twitter from 'twitter-v2';
 import emojiRegexRGI from 'emoji-regex/RGI_Emoji';
+import BadWords from 'bad-words';
 
 import firebaseAuth from '@useship/fastify-firebase-auth';
 import { CREDENTIALS, GPT3_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
 import { TweetsPatch, TweetsResponse } from './types';
-import { completion } from '../services/openai';
+import { completion, isContentProfane } from '../services/openai';
+
+const profanityFilter = new BadWords();
 
 export async function tweetsHandlers(server: FastifyInstance) {
   server.register(firebaseAuth, { serviceAccount: CREDENTIALS });
@@ -42,6 +45,8 @@ export async function tweetsHandlers(server: FastifyInstance) {
 
     // Remove mentions, urls and emojis from the text of each tweet
     const cleanTweets = userTweets.data
+      // Remove the tweets that include profanity
+      .filter((tweet) => profanityFilter.isProfane(tweet.text) === false)
       // Sort found tweets by their popularity
       .sort((tweetA, tweetB) => {
         if (
@@ -97,7 +102,13 @@ export async function tweetsHandlers(server: FastifyInstance) {
       GPT3_SETTINGS.presencePenalty, // could also be a range
       GPT3_SETTINGS.frequencyPenalty // could be a range
     );
-    const result = generated.map((item) => {
+    const result = generated.map(async (item) => {
+      const isProfane = await isContentProfane(item.text);
+
+      if (isProfane) {
+        throw server.httpErrors.unprocessableEntity();
+      }
+
       return db.generatedTweets.create({
         data: {
           text: item.text.trim(),
