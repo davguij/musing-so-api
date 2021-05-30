@@ -15,6 +15,7 @@ import { verifyUsersHandlers } from './users/verify/handlers';
 // import { PAYMENTS_CONFIG } from './payments/config';
 // import { paymentsNotificationsRoutes } from './payments/notifications/routes';
 // import { PAYMENTS_NOTIFICATIONS_CONFIG } from './payments/notifications/config';
+import { demoHandlers } from './demo/handlers';
 
 export function app() {
   const app = fastify({ logger: true });
@@ -31,6 +32,8 @@ export function app() {
   app.register(usersHandlers);
   app.register(verifyUsersHandlers);
   app.register(tweetsHandlers);
+  // Temporary
+  app.register(demoHandlers);
   // ROUTES end
   return app;
 }

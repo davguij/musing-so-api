@@ -33,6 +33,7 @@
     "emoji-regex": "^9.2.2",
     "fastify": "^3.15.1",
     "fastify-auth": "^1.1.0",
+    "fastify-basic-auth": "^2.0.0",
     "fastify-helmet": "^5.3.1",
     "fastify-plugin": "^3.0.0",
     "fastify-print-routes": "^0.4.1",
