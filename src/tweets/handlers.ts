@@ -32,8 +32,11 @@ export async function tweetsHandlers(server: FastifyInstance) {
       access_token_secret: user.twitterTokenSecret,
     });
 
+    // let twitterId = '31077598'
+
     const userTweets = await twitterClient.get<TweetsResponse>(
       `users/${user.twitterUserId}/tweets`,
+      // 'users/745273/tweets', // @naval
       {
         exclude: ['retweets', 'replies'],
         max_results: '100',
@@ -103,11 +106,13 @@ export async function tweetsHandlers(server: FastifyInstance) {
       GPT3_SETTINGS.frequencyPenalty // could be a range
     );
     const result = generated.map(async (item) => {
-      const isProfane = await isContentProfane(item.text);
+      // Deactivating the openAi profanity endpoint
+      // because it's currently not working as it should
+      // const isProfane = await isContentProfane(item.text);
 
-      if (isProfane) {
-        throw server.httpErrors.unprocessableEntity();
-      }
+      // if (isProfane) {
+      //   throw server.httpErrors.unprocessableEntity();
+      // }
 
       return db.generatedTweets.create({
         data: {
