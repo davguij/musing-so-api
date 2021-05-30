@@ -1,6 +1,7 @@
 export const ROUTE_URLS = {
   health: '/health',
   users: '/users',
+  userTwitterInfo: '/users/twitter',
   tweets: '/tweets',
 } as const;
 

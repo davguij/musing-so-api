@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { FastifyInstance } from 'fastify';
 import { nanoid } from 'nanoid';
+import Twitter from 'twitter-v2';
 import firebaseAuth from '@useship/fastify-firebase-auth';
 
 import { CREDENTIALS, ROUTE_URLS } from '../constants';
@@ -48,6 +49,28 @@ export async function usersHandlers(server: FastifyInstance) {
       where: { sub: userDetails.sub },
       select: { sub: true, isActive: true, email: true, isEmailVerified: true },
     });
+  });
+
+  // Retrieve user's Twitter details
+  server.get(ROUTE_URLS.userTwitterInfo, async ({ userDetails }) => {
+    const user = await db.user.findUnique({ where: { sub: userDetails.sub } });
+
+    // Fetch the Twitter user details
+    // (displayName, username, avatar)
+    const twitterClient = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: user.twitterAccessToken,
+      access_token_secret: user.twitterTokenSecret,
+    });
+
+    const userInfo = await twitterClient.get<{ data: any }>(
+      `users/${user.twitterUserId}`,
+      {
+        'user.fields': ['name', 'username', 'profile_image_url'],
+      }
+    );
+    return userInfo.data;
   });
 
   // Add/change user's email
