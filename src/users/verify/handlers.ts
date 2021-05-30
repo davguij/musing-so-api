@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { isAfter, add, isBefore } from 'date-fns';
+import { add, isBefore } from 'date-fns';
 
 import { ROUTE_URLS } from '../../constants';
 import { db } from '../../services/db';

@@ -7,7 +7,7 @@ import firebaseAuth from '@useship/fastify-firebase-auth';
 import { CREDENTIALS, GPT3_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
 import { TweetsPatch, TweetsResponse } from './types';
-import { completion, isContentProfane } from '../services/openai';
+import { completion } from '../services/openai';
 
 const profanityFilter = new BadWords();
 
@@ -32,11 +32,11 @@ export async function tweetsHandlers(server: FastifyInstance) {
       access_token_secret: user.twitterTokenSecret,
     });
 
-    // let twitterId = '31077598'
+    // let twitterId = '31077598';
 
     const userTweets = await twitterClient.get<TweetsResponse>(
       `users/${user.twitterUserId}/tweets`,
-      // 'users/745273/tweets', // @naval
+      // `users/${twitterId}/tweets`,
       {
         exclude: ['retweets', 'replies'],
         max_results: '100',
@@ -110,9 +110,9 @@ export async function tweetsHandlers(server: FastifyInstance) {
       // because it's currently not working as it should
       // const isProfane = await isContentProfane(item.text);
 
-      // if (isProfane) {
-      //   throw server.httpErrors.unprocessableEntity();
-      // }
+      if (profanityFilter.isProfane(item.text)) {
+        throw server.httpErrors.unprocessableEntity();
+      }
 
       return db.generatedTweets.create({
         data: {
