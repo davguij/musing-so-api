@@ -8,10 +8,15 @@ import { CREDENTIALS, GPT3_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
 import { TweetsPatch, TweetsResponse } from './types';
 import { completion } from '../services/openai';
+import fastifyRateLimit from 'fastify-rate-limit';
 
 const profanityFilter = new BadWords();
 
 export async function tweetsHandlers(server: FastifyInstance) {
+  server.register(fastifyRateLimit, {
+    max: 45,
+    timeWindow: '1 minute',
+  });
   server.register(firebaseAuth, { serviceAccount: CREDENTIALS });
 
   server.get(ROUTE_URLS.tweets, async ({ userDetails }) => {

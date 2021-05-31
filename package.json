@@ -37,6 +37,7 @@
     "fastify-helmet": "^5.3.1",
     "fastify-plugin": "^3.0.0",
     "fastify-print-routes": "^0.4.1",
+    "fastify-rate-limit": "^5.5.0",
     "fastify-sensible": "^3.1.1",
     "firebase-admin": "^9.8.0",
     "http-status-codes": "^2.1.4",

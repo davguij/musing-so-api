@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import fastifyAuth from 'fastify-auth';
 import fastifyBasicAuth from 'fastify-basic-auth';
+import fastifyRateLimit from 'fastify-rate-limit';
 import Twitter from 'twitter-v2';
 import BadWords from 'bad-words';
 import emojiRegexRGI from 'emoji-regex/RGI_Emoji';
@@ -19,6 +20,11 @@ async function validate(username: string, password: string) {
 }
 
 export async function demoHandlers(server: FastifyInstance) {
+  server.register(fastifyRateLimit, {
+    max: 45,
+    timeWindow: '1 minute',
+  });
+
   await server.register(fastifyAuth);
   await server.register(fastifyBasicAuth, { validate });
 
