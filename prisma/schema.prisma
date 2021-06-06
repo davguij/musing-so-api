@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DB_CONN_STRING")
+  provider          = "postgresql"
+  url               = env("DB_CONN_STRING")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 generator client {
@@ -34,8 +35,8 @@ model GeneratedTweets {
   // TODO Rename "liked" to score and give a value of -1, 0, or 1?
   liked                    Boolean  @default(false)
   settingsTemperature      Float
-  settingsPresencePenalty  Float
-  settingsFrequencyPenalty Float
+  settingsPresencePenalty  Float?
+  settingsFrequencyPenalty Float?
   user                     User     @relation(fields: [userSub], references: [sub])
   userSub                  String
 }

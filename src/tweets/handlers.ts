@@ -4,10 +4,10 @@ import emojiRegexRGI from 'emoji-regex/RGI_Emoji';
 import BadWords from 'bad-words';
 
 import firebaseAuth from '@useship/fastify-firebase-auth';
-import { CREDENTIALS, GPT3_SETTINGS, ROUTE_URLS } from '../constants';
+import { CREDENTIALS, GPT_NEO_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
 import { TweetsPatch, TweetsResponse } from './types';
-import { completion } from '../services/openai';
+import { completion } from '../services/gpt-neo';
 import fastifyRateLimit from 'fastify-rate-limit';
 
 const profanityFilter = new BadWords();
@@ -37,15 +37,15 @@ export async function tweetsHandlers(server: FastifyInstance) {
       access_token_secret: user.twitterTokenSecret,
     });
 
-    // let twitterId = '31077598';
+    let twitterUserId = '745273';
 
     const userTweets = await twitterClient.get<TweetsResponse>(
       `users/${user.twitterUserId}/tweets`,
-      // `users/${twitterId}/tweets`,
+      // `users/${twitterUserId}/tweets`,
       {
         exclude: ['retweets', 'replies'],
         max_results: '100',
-        'tweet.fields': ['non_public_metrics', 'public_metrics'],
+        'tweet.fields': ['non_public_metrics'],
       }
     );
 
@@ -106,32 +106,25 @@ export async function tweetsHandlers(server: FastifyInstance) {
       // is this a good temperature?
       // It could be a range in between 0.5 and 0.9
       // Maybe make it random at first to experiment?
-      GPT3_SETTINGS.temperature,
-      GPT3_SETTINGS.presencePenalty, // could also be a range
-      GPT3_SETTINGS.frequencyPenalty // could be a range
+      GPT_NEO_SETTINGS.temperature
+      // GPT3_SETTINGS.presencePenalty, // could also be a range
+      // GPT3_SETTINGS.frequencyPenalty // could be a range
     );
-    const result = generated.map(async (item) => {
-      // Deactivating the openAi profanity endpoint
-      // because it's currently not working as it should
-      // const isProfane = await isContentProfane(item.text);
 
-      if (profanityFilter.isProfane(item.text)) {
-        throw server.httpErrors.unprocessableEntity();
-      }
+    const result = generated.replace('###', '').trim();
 
-      return db.generatedTweets.create({
-        data: {
-          text: item.text.trim(),
-          userSub: userDetails.sub,
-          settingsTemperature: GPT3_SETTINGS.temperature,
-          settingsFrequencyPenalty: GPT3_SETTINGS.frequencyPenalty,
-          settingsPresencePenalty: GPT3_SETTINGS.presencePenalty,
-        },
-        select: { id: true, text: true },
-      });
+    const { text } = await db.generatedTweets.create({
+      data: {
+        text: result,
+        userSub: userDetails.sub,
+        settingsTemperature: GPT_NEO_SETTINGS.temperature,
+      },
+      select: {
+        text: true,
+      },
     });
 
-    return Promise.all(result);
+    return { text };
   });
 
   server.patch<TweetsPatch>(

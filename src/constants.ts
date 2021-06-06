@@ -15,3 +15,9 @@ export const GPT3_SETTINGS = {
   presencePenalty: 0.4,
   frequencyPenalty: 0.75,
 } as const;
+
+export const GPT_NEO_SETTINGS = {
+  temperature: 0.8,
+  // presencePenalty: 0.4,
+  // frequencyPenalty: 0.75,
+} as const;
