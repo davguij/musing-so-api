@@ -12,6 +12,12 @@ type Tweet = {
   non_public_metrics: any;
 };
 
+export interface TweetsGet extends RequestGenericInterface {
+  Querystring: {
+    page: number;
+  };
+}
+
 export interface TweetsPatch extends RequestGenericInterface {
   Body: {
     liked: boolean;

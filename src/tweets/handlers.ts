@@ -6,7 +6,7 @@ import BadWords from 'bad-words';
 import firebaseAuth from '@useship/fastify-firebase-auth';
 import { CREDENTIALS, GPT_NEO_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
-import { TweetsPatch, TweetsResponse } from './types';
+import { TweetsGet, TweetsPatch, TweetsResponse } from './types';
 import { completion } from '../services/gpt-neo';
 import fastifyRateLimit from 'fastify-rate-limit';
 
@@ -14,12 +14,12 @@ const profanityFilter = new BadWords();
 
 export async function tweetsHandlers(server: FastifyInstance) {
   server.register(fastifyRateLimit, {
-    max: 45,
+    max: 60,
     timeWindow: '1 minute',
   });
   server.register(firebaseAuth, { serviceAccount: CREDENTIALS });
 
-  server.get(ROUTE_URLS.tweets, async ({ userDetails }) => {
+  server.post(ROUTE_URLS.tweets, async ({ userDetails }) => {
     // 1st find user by sub and get Twitter credentials
     const user = await db.user.findUnique({ where: { sub: userDetails.sub } });
 
@@ -37,7 +37,7 @@ export async function tweetsHandlers(server: FastifyInstance) {
       access_token_secret: user.twitterTokenSecret,
     });
 
-    let twitterUserId = '745273';
+    // let twitterUserId = '745273';
 
     const userTweets = await twitterClient.get<TweetsResponse>(
       `users/${user.twitterUserId}/tweets`,
@@ -125,6 +125,20 @@ export async function tweetsHandlers(server: FastifyInstance) {
     });
 
     return { text };
+  });
+
+  server.get<TweetsGet>(ROUTE_URLS.tweets, async ({ userDetails, query }) => {
+    const page = query.page || 0;
+    const resultsPerPage = 20 as const;
+    return db.generatedTweets.findMany({
+      where: { userSub: userDetails.sub },
+      select: { id: true, text: true, createdAt: true },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: resultsPerPage,
+      skip: page * resultsPerPage,
+    });
   });
 
   server.patch<TweetsPatch>(
