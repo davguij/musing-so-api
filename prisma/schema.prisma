@@ -22,7 +22,8 @@ model User {
   twitterTokenSecret String
   email              String?
   isEmailVerified    Boolean?
-  isActive           Boolean           @default(false)
+  remainingQuota     Int
+  quotaRefreshDate   DateTime
   generatedTweets    GeneratedTweets[]
   verificationCode   VerificationCode?
 }

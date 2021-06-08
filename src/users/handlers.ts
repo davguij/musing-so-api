@@ -9,6 +9,7 @@ import { db } from '../services/db';
 
 import { UsersPost, UsersPatch } from './types';
 import { sendVerificationMail } from '../services/email';
+import { addMonths, isPast } from 'date-fns';
 
 export async function usersHandlers(server: FastifyInstance) {
   server.register(firebaseAuth, { serviceAccount: CREDENTIALS });
@@ -34,21 +35,35 @@ export async function usersHandlers(server: FastifyInstance) {
           twitterUserId: twitterId,
           twitterAccessToken: oauthAccessToken,
           twitterTokenSecret: oauthTokenSecret,
+          remainingQuota: 20,
+          quotaRefreshDate: addMonths(new Date(), 1),
         },
-        select: { sub: true, isActive: true, email: true },
+        select: {
+          sub: true,
+          email: true,
+          remainingQuota: true,
+          quotaRefreshDate: true,
+          isEmailVerified: true,
+        },
       });
 
       reply.code(StatusCodes.CREATED);
-      return savedUser;
+      const { sub, email, remainingQuota, quotaRefreshDate, isEmailVerified } =
+        savedUser;
+      const isActive = remainingQuota > 0 && !isPast(quotaRefreshDate);
+      return { sub, email, isEmailVerified, isActive };
     }
   );
 
   // Check if user is active and has a valid email address
   server.get(ROUTE_URLS.users, async ({ userDetails }) => {
-    return db.user.findUnique({
+    const savedUser = await db.user.findUnique({
       where: { sub: userDetails.sub },
-      select: { sub: true, isActive: true, email: true, isEmailVerified: true },
     });
+    const { sub, email, remainingQuota, quotaRefreshDate, isEmailVerified } =
+      savedUser;
+    const isActive = remainingQuota > 0 && !isPast(quotaRefreshDate);
+    return { sub, email, isEmailVerified, isActive };
   });
 
   // Retrieve user's Twitter details

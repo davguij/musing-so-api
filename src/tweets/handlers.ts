@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import Twitter from 'twitter-v2';
 import emojiRegexRGI from 'emoji-regex/RGI_Emoji';
 import BadWords from 'bad-words';
+import { isPast } from 'date-fns';
 
 import firebaseAuth from '@useship/fastify-firebase-auth';
 import { CREDENTIALS, GPT_NEO_SETTINGS, ROUTE_URLS } from '../constants';
@@ -23,10 +24,12 @@ export async function tweetsHandlers(server: FastifyInstance) {
     // 1st find user by sub and get Twitter credentials
     const user = await db.user.findUnique({ where: { sub: userDetails.sub } });
 
-    // Now check if the user is marked as active,
-    // otherwise they can't create the suggestions
-    if (user.isActive !== true) {
-      throw server.httpErrors.forbidden();
+    // Let's check if the user still has quota this billing period
+    // - Is the quote refresh date in the past?
+    // - Is the remaining quota higher than zero?
+    // If any of those is no, then we reject the generation attempt
+    if (isPast(user.quotaRefreshDate) || user.remainingQuota === 0) {
+      throw server.httpErrors.paymentRequired();
     }
 
     // 2nd retrieve a lot of tweets from user
@@ -99,7 +102,6 @@ export async function tweetsHandlers(server: FastifyInstance) {
       .join('\n');
     const prompt = `This is a tweet generator. It writes new tweets inspired by the already existing ones.\n###\n${tweetsForPrompt}\ntweet:`;
 
-    // return prompt;
     // 5th generate a few tweet ideas (3 to 5? or 1 by 1?)
     const generated = await completion(
       prompt,
@@ -122,6 +124,11 @@ export async function tweetsHandlers(server: FastifyInstance) {
       select: {
         text: true,
       },
+    });
+
+    await db.user.update({
+      where: { sub: userDetails.sub },
+      data: { remainingQuota: { decrement: 1 } },
     });
 
     return { text };
