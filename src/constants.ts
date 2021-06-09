@@ -3,7 +3,9 @@ export const ROUTE_URLS = {
   users: '/users',
   userTwitterInfo: '/users/twitter',
   tweets: '/tweets',
-  demo: '/demo',
+  payments: '/payments',
+  subscriptions: '/subscriptions',
+  paymentNotifications: '/payments/notifications',
 } as const;
 
 export const CREDENTIALS = JSON.parse(

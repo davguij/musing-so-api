@@ -11,10 +11,8 @@ import { healthHandlers } from './health/handlers';
 import { usersHandlers } from './users/handlers';
 import { tweetsHandlers } from './tweets/handlers';
 import { verifyUsersHandlers } from './users/verify/handlers';
-// import { paymentRoutes } from './payments/routes';
-// import { PAYMENTS_CONFIG } from './payments/config';
-// import { paymentsNotificationsRoutes } from './payments/notifications/routes';
-// import { PAYMENTS_NOTIFICATIONS_CONFIG } from './payments/notifications/config';
+import { paymentHandlers } from './payments/handlers';
+import { paymentsNotificationsHandlers } from './payments/notifications/handlers';
 
 export function app() {
   const app = fastify({ logger: true });
@@ -31,6 +29,8 @@ export function app() {
   app.register(usersHandlers);
   app.register(verifyUsersHandlers);
   app.register(tweetsHandlers);
+  app.register(paymentHandlers);
+  app.register(paymentsNotificationsHandlers);
   // ROUTES end
   return app;
 }

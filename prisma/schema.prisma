@@ -16,16 +16,18 @@ model VerificationCode {
 }
 
 model User {
-  sub                String            @id
-  twitterUserId      String
-  twitterAccessToken String
-  twitterTokenSecret String
-  email              String?
-  isEmailVerified    Boolean?
-  remainingQuota     Int
-  quotaRefreshDate   DateTime
-  generatedTweets    GeneratedTweets[]
-  verificationCode   VerificationCode?
+  sub                  String            @id
+  twitterUserId        String
+  twitterAccessToken   String
+  twitterTokenSecret   String
+  email                String?
+  isEmailVerified      Boolean?
+  remainingQuota       Int
+  quotaRefreshDate     DateTime
+  generatedTweets      GeneratedTweets[]
+  verificationCode     VerificationCode?
+  stripeCustomerId     String?           @unique
+  stripeSubscriptionId String?           @unique
 }
 
 model GeneratedTweets {
