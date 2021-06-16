@@ -14,7 +14,7 @@ export async function paymentHandlers(server: FastifyInstance) {
 
   server.post<{ Body: { priceId: string } }>(
     ROUTE_URLS.payments,
-    async ({ userDetails, body: { priceId } }) => {
+    async ({ userDetails, ip, body: { priceId } }) => {
       let { sub, email, isEmailVerified, stripeCustomerId } =
         await db.user.findUnique({
           where: { sub: userDetails.sub },
@@ -31,7 +31,13 @@ export async function paymentHandlers(server: FastifyInstance) {
       }
       try {
         if (!stripeCustomerId) {
-          const customer = await stripe.customers.create({ email });
+          const customer = await stripe.customers.create({
+            email,
+            tax: {
+              ip_address: ip,
+            },
+            expand: ['tax'],
+          });
           stripeCustomerId = customer.id;
         }
 
@@ -54,6 +60,12 @@ export async function paymentHandlers(server: FastifyInstance) {
           // is redirected to the success page.
           success_url: `${process.env.STRIPE_CHECKOUT_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: process.env.STRIPE_CHECKOUT_CANCEL_URL,
+          automatic_tax: {
+            enabled: true,
+          },
+          customer_update: {
+            address: 'auto',
+          },
         });
 
         return { sessionId: session.id };

@@ -15,7 +15,7 @@ import { paymentHandlers } from './payments/handlers';
 import { paymentsNotificationsHandlers } from './payments/notifications/handlers';
 
 export function app() {
-  const app = fastify({ logger: true });
+  const app = fastify({ logger: true, trustProxy: true });
 
   app.register(fastifyHelmet);
   app.register(fastifySensible);
