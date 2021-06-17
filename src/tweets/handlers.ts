@@ -10,6 +10,7 @@ import { db } from '../services/db';
 import { TweetsGet, TweetsPatch, TweetsResponse } from './types';
 import { completion } from '../services/gpt-neo';
 import fastifyRateLimit from 'fastify-rate-limit';
+import { randomFloat } from '../utils';
 
 const profanityFilter = new BadWords();
 
@@ -100,17 +101,28 @@ export async function tweetsHandlers(server: FastifyInstance) {
     const tweetsForPrompt = cleanTweets
       .map((tweet) => `tweet: ${tweet.text}\n###`)
       .join('\n');
-    const prompt = `This is a tweet generator. It writes new tweets inspired by the already existing ones.\n###\n${tweetsForPrompt}\ntweet:`;
+    const prompt = `${tweetsForPrompt}\ntweet:`;
+
+    // Generate random settings (within ranges) for GPT-NEO
+    const settingsTemperature = randomFloat(
+      GPT_NEO_SETTINGS.temperature.min,
+      GPT_NEO_SETTINGS.temperature.max
+    );
+    const settingsPresencePenalty = randomFloat(
+      GPT_NEO_SETTINGS.presencePenalty.min,
+      GPT_NEO_SETTINGS.presencePenalty.max
+    );
+    const settingsFrequencyPenalty = randomFloat(
+      GPT_NEO_SETTINGS.frequencyPenalty.min,
+      GPT_NEO_SETTINGS.frequencyPenalty.max
+    );
 
     // 5th generate a few tweet ideas (3 to 5? or 1 by 1?)
     const generated = await completion(
       prompt,
-      // is this a good temperature?
-      // It could be a range in between 0.5 and 0.9
-      // Maybe make it random at first to experiment?
-      GPT_NEO_SETTINGS.temperature
-      // GPT3_SETTINGS.presencePenalty, // could also be a range
-      // GPT3_SETTINGS.frequencyPenalty // could be a range
+      settingsTemperature,
+      settingsPresencePenalty,
+      settingsFrequencyPenalty
     );
 
     const result = generated.replace('###', '').trim();
@@ -119,7 +131,9 @@ export async function tweetsHandlers(server: FastifyInstance) {
       data: {
         text: result,
         userSub: userDetails.sub,
-        settingsTemperature: GPT_NEO_SETTINGS.temperature,
+        settingsTemperature,
+        settingsPresencePenalty,
+        settingsFrequencyPenalty,
       },
       select: {
         text: true,

@@ -13,13 +13,13 @@ export const CREDENTIALS = JSON.parse(
 );
 
 export const GPT3_SETTINGS = {
-  temperature: 0.8,
-  presencePenalty: 0.4,
-  frequencyPenalty: 0.75,
+  temperature: { max: 1, min: 0.6 },
+  presencePenalty: { min: 0.4, max: 0.8 },
+  frequencyPenalty: { min: 0.3, max: 0.7 },
 } as const;
 
 export const GPT_NEO_SETTINGS = {
-  temperature: 0.8,
-  // presencePenalty: 0.4,
-  // frequencyPenalty: 0.75,
+  temperature: { max: 1, min: 0.6 },
+  presencePenalty: { min: 0.4, max: 0.8 },
+  frequencyPenalty: { min: 0.3, max: 0.7 },
 } as const;

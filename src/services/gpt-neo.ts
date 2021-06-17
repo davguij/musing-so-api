@@ -5,9 +5,9 @@ const API_URL =
 
 export async function completion(
   prompt: string,
-  temperature: number
-  // presence_penalty?: number,
-  // frequency_penalty?: number
+  temperature: number,
+  presence_penalty: number,
+  frequency_penalty: number
 ) {
   const req = await fetch(API_URL, {
     method: 'POST',
@@ -21,6 +21,8 @@ export async function completion(
         return_full_text: false,
         max_new_tokens: 72,
         temperature,
+        presence_penalty,
+        frequency_penalty,
         end_sequence: '###',
       },
       options: {
