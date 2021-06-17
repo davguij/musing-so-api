@@ -17,7 +17,7 @@
   "devDependencies": {
     "ava": "^3.15.0",
     "prettier": "^2.3.0",
-    "prisma": "^2.22.1",
+    "prisma": "^2.25.0",
     "ts-node-dev": "^1.1.6"
   },
   "dependencies": {
@@ -49,6 +49,7 @@
     "stripe": "^8.154.0",
     "ts-node": "^9.1.1",
     "twitter-v2": "^1.1.0",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "weighted-shuffle": "^1.0.0"
   }
 }
