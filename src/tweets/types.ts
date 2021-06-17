@@ -5,7 +5,7 @@ export type TweetsResponse = {
   meta: any;
 };
 
-type Tweet = {
+export type Tweet = {
   id: string;
   text: string;
   public_metrics: any;

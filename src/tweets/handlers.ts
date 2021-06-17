@@ -3,11 +3,12 @@ import Twitter from 'twitter-v2';
 import emojiRegexRGI from 'emoji-regex/RGI_Emoji';
 import BadWords from 'bad-words';
 import { isPast } from 'date-fns';
+import { shuffle, Direction, ArrayInput } from 'weighted-shuffle';
 
 import firebaseAuth from '@useship/fastify-firebase-auth';
 import { CREDENTIALS, GPT_NEO_SETTINGS, ROUTE_URLS } from '../constants';
 import { db } from '../services/db';
-import { TweetsGet, TweetsPatch, TweetsResponse } from './types';
+import { Tweet, TweetsGet, TweetsPatch, TweetsResponse } from './types';
 import { completion } from '../services/gpt-neo';
 import fastifyRateLimit from 'fastify-rate-limit';
 import { randomFloat } from '../utils';
@@ -49,7 +50,10 @@ export async function tweetsHandlers(server: FastifyInstance) {
       {
         exclude: ['retweets', 'replies'],
         max_results: '100',
-        'tweet.fields': ['non_public_metrics'],
+        'tweet.fields': [
+          // 'non_public_metrics',
+          'public_metrics',
+        ],
       }
     );
 
@@ -59,31 +63,51 @@ export async function tweetsHandlers(server: FastifyInstance) {
     const cleanTweets = userTweets.data
       // Remove the tweets that include profanity
       .filter((tweet) => profanityFilter.isProfane(tweet.text) === false)
-      // Sort found tweets by their popularity
-      .sort((tweetA, tweetB) => {
-        if (
-          tweetA.non_public_metrics.impression_count >
-          tweetB.non_public_metrics.impression_count
-        ) {
-          return -1;
-        }
-        if (
-          tweetA.non_public_metrics.impression_count <
-          tweetB.non_public_metrics.impression_count
-        ) {
-          return 1;
-        }
-        return 0;
-      })
+      // Directly remove tweets that have links on them
+      .filter((tweet) => {
+        const urlRegexp =
+          /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/g;
+        return urlRegexp.test(tweet.text) === false;
+      });
+
+    // Sort found tweets by their popularity
+    // .sort((tweetA, tweetB) => {
+    //   if (
+    //     tweetA.non_public_metrics.impression_count >
+    //     tweetB.non_public_metrics.impression_count
+    //   ) {
+    //     return -1;
+    //   }
+    //   if (
+    //     tweetA.non_public_metrics.impression_count <
+    //     tweetB.non_public_metrics.impression_count
+    //   ) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // })
+
+    // Do a weighted shuffle so that more popular items are more likely to be first
+    const tweetsTuples: ArrayInput<Tweet> = cleanTweets.map((tweet) => {
+      const weight =
+        parseInt(tweet.public_metrics.like_count) / 5 +
+        parseInt(tweet.public_metrics.reply_count) / 2 +
+        parseInt(tweet.public_metrics.retweet_count);
+      return [{ ...tweet }, Math.round((weight + Number.EPSILON) * 100) / 100];
+    });
+    const shuffledTweets = shuffle(tweetsTuples, Direction.desc);
+
+    const finalTweets = shuffledTweets
+      .map((tweet) => tweet[0])
       .map((tweet) => ({
         // Remove mentions, urls and emojis from the text of each tweet
         ...tweet,
         text: tweet.text
           .replace(/(^|[^@\w])@(\w{1,15})\b/gi, '')
-          .replace(
-            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/g,
-            ''
-          )
+          // .replace(
+          //   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/g,
+          //   ''
+          // )
           .replace(emojiRegexRGI(), '')
           .replace(/\r?\n|\r/g, ' ')
           .replace(/\s\s+/g, ' ')
@@ -97,8 +121,8 @@ export async function tweetsHandlers(server: FastifyInstance) {
       .slice(0, 10);
     // .reverse();
 
-    // 4th build gpt-3 prompt
-    const tweetsForPrompt = cleanTweets
+    // 4th build gpt prompt
+    const tweetsForPrompt = finalTweets
       .map((tweet) => `tweet: ${tweet.text}\n###`)
       .join('\n');
     const prompt = `${tweetsForPrompt}\ntweet:`;

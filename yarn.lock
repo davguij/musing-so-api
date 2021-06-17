@@ -3660,6 +3660,11 @@ websocket-extensions@>=0.1.1:
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
+weighted-shuffle@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/weighted-shuffle/-/weighted-shuffle-1.0.0.tgz#cc0e9b01a212a0f0ad60c9d8511611df2eda6154"
+  integrity sha512-3dfOrEyJaMZPzqD0X+S6K+xG/6GdTu0upRUQOh6W8ecx0OK0sH2YMRV0BOD6e+d3Cih22yGQkp+P9t0T6fvArg==
+
 well-known-symbols@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/well-known-symbols/-/well-known-symbols-2.0.0.tgz#e9c7c07dbd132b7b84212c8174391ec1f9871ba5"
