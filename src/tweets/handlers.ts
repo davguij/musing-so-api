@@ -127,7 +127,7 @@ export async function tweetsHandlers(server: FastifyInstance) {
 
     const result = generated.replace('###', '').trim();
 
-    const { text } = await db.generatedTweets.create({
+    const { text, id } = await db.generatedTweets.create({
       data: {
         text: result,
         userSub: userDetails.sub,
@@ -137,6 +137,7 @@ export async function tweetsHandlers(server: FastifyInstance) {
       },
       select: {
         text: true,
+        id: true,
       },
     });
 
@@ -145,7 +146,7 @@ export async function tweetsHandlers(server: FastifyInstance) {
       data: { remainingQuota: { decrement: 1 } },
     });
 
-    return { text };
+    return { id, text };
   });
 
   server.get<TweetsGet>(ROUTE_URLS.tweets, async ({ userDetails, query }) => {
