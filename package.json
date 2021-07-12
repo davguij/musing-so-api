@@ -47,7 +47,7 @@
     "nodemailer": "^6.6.1",
     "nodemailer-html-to-text": "^3.2.0",
     "stripe": "^8.154.0",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.1.0",
     "twitter-v2": "^1.1.0",
     "typescript": "^4.2.4",
     "weighted-shuffle": "^1.0.0"
